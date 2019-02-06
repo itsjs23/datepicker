@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>DateTimePicker</title>
+
+	<style type="text/css" media="screen">
+
+		#date-time-picker{
+			max-width: 250px;
+			max-height: 200px;
+			min-height: 200px;
+			min-width: 250px;
+			box-shadow: 1px 1px 2px #ccc;
+			border:1px solid  #ccc;
+		}
+
+		#span-left-arrow { width: 10%; }
+		#span-right-arrow { width: 10%; }
+
+		#months-name{
+			max-height: 100px;
+			overflow: auto;
+			width: 40%;
+		}	
+
+		#years{
+			width: 40%;
+		}
+
+		table {
+			border-collapse: collapse;
+		}
+
+		table tr td {
+			border:1px solid #ccc;
+			text-align: center;
+		}
+
+		.current-date{
+			color:#00f;
+		}
+
+
+	</style>
+</head>
+<body>
+
+	<div id="date-time-picker">
+
+		<div class="date-section">
+
+			<!-- ROW-1 -->
+			<div class="row">
+				<span id="span-left-arrow" > < </span>
+				<select name="months-name" id="months-name" onchange="getDays()">
+				</select>
+				<select name="years" id="years" onchange="getDays()">
+				</select>
+				<span id="span-right-arrow" > > </span>
+			</div>
+
+			<!-- ROW-2 -->
+			<div class="row">
+				<table>
+					
+					<thead>
+						<tr> <th>Sun</th> <th>Mon</th> <th>Tue</th> <th>Wed</th> <th>Thu</th> <th>Fri</th> <th>Sat</th> </tr>
+					</thead>
+
+					<tbody id="days-in-month">
+						
+
+					</tbody>
+
+				</table>
+				
+			</div>
+
+
+
+		</div>
+
+
+	</div>
+
+	
+	<script>
+
+
+
+
+		function Init(dateObject){
+			var startYr = 1969,
+			endYr = 2069 ,  
+			yrOptions="", 
+			monthOptions = "",
+			daysInMonthStr ="",
+			monthStartIndex = 0,
+			monthCount = 12,
+			weekStartIndex = 0,
+			startMonWeekIndex =0, // sun
+			monhtNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+			weekNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+			dateObj = dateObject || new Date() , 
+			currentYr = dateObj.getFullYear(), // 2016 
+			currentMonthIndex = dateObj.getMonth(), // 0-11
+			daysInMonth = [31, (isLeapYear(currentYr) ? 29:28 ) ,31,30,31,30,31,31,30,31,30,31],
+			mothFirstDate = currentYr+'-'+ (currentMonthIndex+1)+'-01',
+			startMonWeekIndex = (new Date(mothFirstDate)).getDay(),
+			maxDaysInMonth = daysInMonth[currentMonthIndex],
+			currentDay =dateObj.getDate();
+
+			function isLeapYear(yr)
+			{
+				return ( yr%4 == 0 && yr%100 != 0 ) || yr%400 == 0 ;
+			}
+
+			
+			// Genrate Month Options
+			var selectedMonth = '';
+			while(monthStartIndex < monthCount){
+				selectedMonth = (currentMonthIndex === monthStartIndex) ? 'selected' : '' ;
+				monthOptions += "<option value='"+monthStartIndex+"' "+selectedMonth+">"+ monhtNames[monthStartIndex] +"</option>";
+				monthStartIndex++;
+			}
+			document.getElementById('months-name').innerHTML = monthOptions;
+
+			// Genrate Year Options
+			var selectedYr = '';
+			while(++startYr <= endYr){
+				selectedYr = (startYr === currentYr) ? 'selected' : ''; 
+				yrOptions += "<option value='"+startYr+"' "+selectedYr+">"+ startYr +"</option>";
+			}
+			document.getElementById('years').innerHTML = yrOptions;
+
+
+			// Genrate days
+			var tdCounter = 0 ;
+			var monthsDaysArr = [];
+
+
+			// Start blank Filed 
+			for(var i = 0 ; i < startMonWeekIndex ; i++ ){
+				monthsDaysArr.push('');
+			}
+
+			// month days
+			for(var x = 1 ; x <= maxDaysInMonth ; x++ ){
+				monthsDaysArr.push(x);
+			}
+
+
+			// end Blacnk Fileds
+			var endDaysBlankFiled = 7 - (  (startMonWeekIndex + maxDaysInMonth) % 7 ) ;
+			if(endDaysBlankFiled != 7 ){
+				for(var y = 0 ; y < endDaysBlankFiled ; y++ ){
+					monthsDaysArr.push('');
+				}	
+			}
+			
+
+			var len = monthsDaysArr.length;
+			daysInMonthStr += "<tr>";
+			var z = 0 ;
+			var daySelected = '';
+			var monthDay = '';
+			while(z < len){ 
+				monthDay = monthsDaysArr[z];
+				daySelected = (monthDay == currentDay )? "class='current-date'" : '';
+				daysInMonthStr +="<td "+daySelected+">"+monthDay+"</td>";
+				z++;
+				if( z % 7 === 0 && z !== len-1  ){
+					daysInMonthStr +="</tr><tr>";
+				}
+			}
+
+
+			daysInMonthStr +="</tr>";
+			document.getElementById('days-in-month').innerHTML = daysInMonthStr;
+
+		}
+
+
+
+
+
+
+		window.onload = Init();
+
+		function getDays() {
+			var yr = document.getElementById('years').value;
+			var month = parseInt(document.getElementById('months-name').value)+1;
+			var dateStr = yr+'-'+month+'-01';
+			console.log(dateStr);
+			Init(new Date(dateStr));
+		}
+
+
+
+
+	</script>
+
+
+
+
+	
+</body>
+</html>
